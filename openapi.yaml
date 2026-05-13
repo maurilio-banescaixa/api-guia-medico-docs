@@ -14,6 +14,234 @@ tags:
     description: Endpoints relacionados ao Guia Médico
 
 paths:
+  /rest/apibcxGuiaMedico/api/GuiaMedico/Estados:
+    get:
+      tags:
+        - Guia Médico
+      summary: Listar estados
+      description: |
+        Lista os estados disponíveis para consulta no Guia Médico.
+
+        Este endpoint retorna uma lista de UFs no formato `id` e `nome`.
+      operationId: listarEstados
+      security:
+        - basicAuth: []
+      responses:
+        "200":
+          description: Estados localizados com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListaSimplesResponse"
+              example:
+                Result: 1
+                Message: "Consulta realizada com sucesso"
+                Data:
+                  - id: "ES"
+                    nome: "ES"
+                DebugMessage: "Estados localizados"
+        "500":
+          description: UF não localizada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroPadraoResponse"
+              example:
+                Result: 0
+                Message: "UF não localizada"
+                DebugMessage: "Dados não carregados, verifique a UF"
+
+  /rest/apibcxGuiaMedico/api/GuiaMedico/Cidades:
+    get:
+      tags:
+        - Guia Médico
+      summary: Listar cidades
+      description: |
+        Lista as cidades disponíveis para a UF informada.
+
+        O parâmetro `uf` deve ser enviado na query string.
+      operationId: listarCidades
+      security:
+        - basicAuth: []
+      parameters:
+        - name: uf
+          in: query
+          required: true
+          description: UF utilizada para consultar as cidades.
+          schema:
+            type: string
+            example: "ES"
+      responses:
+        "200":
+          description: Cidades localizadas com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListaSimplesResponse"
+              example:
+                Result: 1
+                Message: "Consulta realizada com sucesso"
+                Data:
+                  - id: "AFONSO CLAUDIO"
+                    nome: "AFONSO CLAUDIO"
+                  - id: "ALEGRE"
+                    nome: "ALEGRE"
+                  - id: "ARACRUZ"
+                    nome: "ARACRUZ"
+                DebugMessage: "Cidades localizadas com sucesso"
+        "500":
+          description: UF não informada ou não localizada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroPadraoResponse"
+              example:
+                Result: 0
+                Message: "UF não localizada"
+                DebugMessage: "Dados não carregados, verifique a UF"
+
+  /rest/apibcxGuiaMedico/api/GuiaMedico/Bairros:
+    get:
+      tags:
+        - Guia Médico
+      summary: Listar bairros
+      description: |
+        Lista os bairros disponíveis para a cidade informada.
+
+        O parâmetro `cidadeId` deve ser enviado na query string.
+      operationId: listarBairros
+      security:
+        - basicAuth: []
+      parameters:
+        - name: cidadeId
+          in: query
+          required: true
+          description: Nome/código da cidade utilizada para consultar os bairros.
+          schema:
+            type: string
+            example: "SERRA"
+      responses:
+        "200":
+          description: Bairros localizados com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListaSimplesResponse"
+              example:
+                Result: 1
+                Message: "Bairro localizado"
+                DebugMessage: "Consulta realizada com sucesso"
+                Data:
+                  - id: "BAIRRO DE FATIMA"
+                    nome: "BAIRRO DE FATIMA"
+                  - id: "BARCELONA"
+                    nome: "BARCELONA"
+                  - id: "BOA VISTA"
+                    nome: "BOA VISTA"
+        "500":
+          description: Cidade não informada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErroPadraoResponse"
+              example:
+                Result: 0
+                Message: "UF não localizada"
+                DebugMessage: "Dados não carregados, verifique o codigo do municipio"
+
+  /rest/apibcxGuiaMedico/api/GuiaMedico/Especialidades:
+    get:
+      tags:
+        - Guia Médico
+      summary: Listar especialidades
+      description: |
+        Lista as especialidades disponíveis para consulta de prestadores.
+
+        O retorno contém itens no formato `id` e `nome`.
+      operationId: listarEspecialidades
+      security:
+        - basicAuth: []
+      responses:
+        "200":
+          description: Especialidades localizadas com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListaSimplesResponse"
+              example:
+                Result: 1
+                Message: "Consulta realizada com sucesso"
+                Data:
+                  - id: "TODOS"
+                    nome: "TODOS"
+                  - id: "ACUPUNTURA"
+                    nome: "ACUPUNTURA"
+                  - id: "ALERGIA E IMUNOLOGIA"
+                    nome: "ALERGIA E IMUNOLOGIA"
+                  - id: "ANDROLOGIA"
+                    nome: "ANDROLOGIA"
+                DebugMessage: "Especialidades localizadas com sucesso"
+
+  /rest/apibcxGuiaMedico/api/GuiaMedico/Planos:
+    get:
+      tags:
+        - Guia Médico
+      summary: Listar planos
+      description: |
+        Lista os planos disponíveis da operadora.
+
+        Quando o header `X-CPF` não é enviado, a API retorna os planos fixos disponíveis.
+
+        Quando o header `X-CPF` é enviado, a API tenta localizar o plano do usuário.
+      operationId: listarPlanos
+      security:
+        - basicAuth: []
+      parameters:
+        - name: X-CPF
+          in: header
+          required: false
+          description: CPF do usuário utilizado para consultar o plano vinculado. Campo opcional.
+          schema:
+            type: string
+            example: "12345678900"
+      responses:
+        "200":
+          description: Consulta de planos processada.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ListaSimplesResponse"
+                  - $ref: "#/components/schemas/PlanoNaoEncontradoResponse"
+              examples:
+                sucessoSemCPF:
+                  summary: Planos retornados sem CPF
+                  value:
+                    Result: 1
+                    Message: "Consulta realizada com sucesso"
+                    Data:
+                      - id: "0001"
+                        nome: "PLANO BANESCAIXA"
+                      - id: "0002"
+                        nome: "PLANO BANESCAIXA FAMILIAR"
+                sucessoComCPF:
+                  summary: Plano localizado com CPF
+                  value:
+                    Result: 1
+                    Message: "Consulta realizada com sucesso"
+                    Data:
+                      - id: "0001"
+                        nome: "PLANO BANESCAIXA"
+                nenhumPlano:
+                  summary: Nenhum plano encontrado
+                  value:
+                    Result: 0
+                    Message: "Nenhum plano encontrado"
+                    Data: {}
+
+
+
+
   /rest/apibcxguiamedico/api/GuiaMedico/Prestadores:
     post:
       tags:
