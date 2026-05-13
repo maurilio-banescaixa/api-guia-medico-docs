@@ -1,0 +1,667 @@
+openapi: 3.0.3
+
+info:
+  title: API Guia Médico
+  version: 1.0.0
+  description: |
+    API responsável pela consulta de prestadores do Guia Médico.
+
+    Esta documentação descreve o endpoint de busca de prestadores, incluindo autenticação, body da requisição, filtros aceitos, exemplos de resposta e estrutura dos objetos retornados.
+
+servers:
+  - url: http://181.41.174.74:3707
+    description: Ambiente de produção
+
+tags:
+  - name: Guia Médico
+    description: Endpoints relacionados ao Guia Médico
+
+paths:
+  /rest/apibcxguiamedico/api/GuiaMedico/Prestadores:
+    post:
+      tags:
+        - Guia Médico
+      summary: Buscar prestadores
+      description: |
+        Consulta prestadores do Guia Médico conforme os filtros informados.
+
+        Este endpoint retorna uma lista de prestadores disponíveis no Guia Médico, incluindo dados cadastrais, conselho profissional, tipo de prestador, especialidades, qualificações, endereços, telefones, cidade e informações de paginação.
+
+        Regras importantes:
+
+        - O filtro `ESTADO` deve ser informado.
+        - O filtro `ESPECIALIDADE` deve ser informado com uma especialidade específica ou com o valor `TODOS`.
+        - O filtro `CIDADE` é opcional.
+        - O filtro `BAIRRO` é opcional.
+        - Caso a consulta não retorne resultados, recomenda-se remover o filtro `BAIRRO` ou utilizar `ESPECIALIDADE` como `TODOS`.
+        - Quando `ESPECIALIDADE` for `TODOS`, a API retorna as especialidades vinculadas ao prestador de forma agrupada/concatenada.
+        - Alguns campos podem retornar vazios por estarem reservados para uso futuro ou compatibilidade com o aplicativo consumidor.
+        - O campo `DebugSql` não deve ser retornado em produção.
+      operationId: buscarPrestadores
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        description: Corpo da requisição contendo filtros da consulta.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrestadoresRequest"
+            examples:
+              todosPorCidade:
+                summary: Buscar todos os prestadores por cidade
+                value:
+                  page: 0
+                  order: string
+                  geo:
+                    latitude: 0
+                    longitude: 0
+                  filters:
+                    - field: ESTADO
+                      value: ES
+                    - field: CIDADE
+                      value: CACHOEIRO DE ITAPEMIRIM
+                    - field: BAIRRO
+                      value: ""
+                    - field: ESPECIALIDADE
+                      value: TODOS
+              especialidadeEspecifica:
+                summary: Buscar por especialidade específica
+                value:
+                  page: 0
+                  order: string
+                  geo:
+                    latitude: 0
+                    longitude: 0
+                  filters:
+                    - field: ESTADO
+                      value: ES
+                    - field: CIDADE
+                      value: VITORIA
+                    - field: BAIRRO
+                      value: ""
+                    - field: ESPECIALIDADE
+                      value: CARDIOLOGIA
+              bairro:
+                summary: Buscar por bairro
+                value:
+                  page: 0
+                  order: string
+                  geo:
+                    latitude: 0
+                    longitude: 0
+                  filters:
+                    - field: ESTADO
+                      value: ES
+                    - field: CIDADE
+                      value: VITORIA
+                    - field: BAIRRO
+                      value: CENTRO
+                    - field: ESPECIALIDADE
+                      value: CARDIOLOGIA
+      responses:
+        "200":
+          description: Consulta processada. Pode retornar prestadores encontrados, nenhum resultado ou erro de validação dos filtros.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/PrestadoresSuccessResponse"
+                  - $ref: "#/components/schemas/PrestadoresNoResultResponse"
+                  - $ref: "#/components/schemas/PrestadoresInvalidFiltersResponse"
+              examples:
+                sucesso:
+                  summary: Prestadores encontrados
+                  value:
+                    Result: 1
+                    Message: Prestadores Encontrados
+                    Data:
+                      guiaMedicoPrestador:
+                        - prestador:
+                            id: "023388"
+                            nomePrestador: "ALCIDES BARATA FILHO"
+                            matricula: "023388"
+                            cdConselho: "CRM"
+                            ufConselho: "ES"
+                            noConselho: "4871"
+                            especialidadeRef: ""
+                            localidadeRef: ""
+                            razaoSocial: "ALCIDES BARATA FILHO"
+                            diretorTecnico: ""
+                            cpfCnpj: "54090964700"
+                            observacao: ""
+                            flags:
+                              iconeUrgenciaEmergencia: ""
+                              iconeExclusaoSubstituicao: ""
+                              iconeRecursoOperadora: ""
+                            qualificacoes: []
+                            tipoPrestador:
+                              codigo: "01"
+                              nome: "MÉDICO"
+                            perfilAssistencial:
+                              codigo: ""
+                              nome: ""
+                            titulacoesCertificacoes:
+                              - codigo: ""
+                                nome: ""
+                            titulacoesCertificacoesFormatados: ""
+                            especialidades:
+                              - codigo: ""
+                                nome: "CARDIOLOGIA"
+                            especialidadesFormatadas: "CARDIOLOGIA"
+                            areaAtuacao:
+                              - codigo: ""
+                                nome: ""
+                            gruposServico:
+                              - codigo: ""
+                                nome: ""
+                            gruposServicoFormatados: ""
+                            qualificacaoPrestador:
+                              - idQualificacao: ""
+                                idInstituicaoAcreditadora: ""
+                                nivelAcreditacao: ""
+                                referenciaEndereco: ""
+                            enderecos:
+                              - idEndereco: "001"
+                                descricaoEndereco: "RUA EXEMPLO"
+                                numEndereco: "100"
+                                complementoEndereco: ""
+                                bairro: "CENTRO"
+                                cep: "29000000"
+                                fonesWhatsApp: []
+                                enderecoWeb: ""
+                                latitude: ""
+                                longitude: ""
+                                cpfCnpj: "54090964700"
+                                cidade:
+                                  idCidade: "1"
+                                  sgUF: "ES"
+                                  nmEstado: "ES"
+                                  nmCidade: "VITORIA"
+                                  latitude: 0
+                                  longitude: 0
+                                  capital: 0
+                                enderecoFormatado: "RUA EXEMPLO, 100 - CENTRO - CEP: 29000000 - VITORIA/ES"
+                                favorito: ""
+                            enderecosFormatados: "RUA EXEMPLO, 100 - CENTRO - CEP: 29000000 - VITORIA/ES"
+                            favorito: ""
+                          distanciaFormatada: ""
+                      page:
+                        page: 1
+                        total: 1
+                        count: 1
+                    DebugMessage: "Processamento finalizado com sucesso"
+                semResultados:
+                  summary: Nenhum prestador encontrado
+                  value:
+                    Result: 0
+                    Message: "Não encontramos resultados com os filtros informados. Tente remover o bairro ou ajustar a especialidade para ampliar a busca"
+                    DebugMessage: "Verifique os parametros pasados"
+                filtrosInvalidos:
+                  summary: Filtros inválidos
+                  value:
+                    Result: 0
+                    Message: "Erro: 'filters' não é um array válido"
+        "500":
+          description: Erro ao interpretar o JSON enviado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrestadoresParseErrorResponse"
+              example:
+                Result: 0
+                Message: "Erro ao fazer o Parse do JSON"
+                DebugMessage: "Detalhe técnico do erro"
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Autenticação Basic Auth.
+
+  schemas:
+    PrestadoresRequest:
+      type: object
+      required:
+        - filters
+      properties:
+        page:
+          type: integer
+          example: 0
+          description: Campo reservado para paginação. Atualmente a API retorna a página 1 no response.
+        order:
+          type: string
+          example: string
+          description: Campo reservado para ordenação.
+        geo:
+          $ref: "#/components/schemas/Geo"
+        filters:
+          type: array
+          description: Lista de filtros utilizados na consulta.
+          items:
+            $ref: "#/components/schemas/Filter"
+      example:
+        page: 0
+        order: string
+        geo:
+          latitude: 0
+          longitude: 0
+        filters:
+          - field: ESTADO
+            value: ES
+          - field: CIDADE
+            value: CACHOEIRO DE ITAPEMIRIM
+          - field: BAIRRO
+            value: ""
+          - field: ESPECIALIDADE
+            value: TODOS
+
+    Geo:
+      type: object
+      description: Campo reservado para geolocalização.
+      properties:
+        latitude:
+          type: number
+          example: 0
+          description: Latitude do usuário. Atualmente não utilizada no cálculo da resposta.
+        longitude:
+          type: number
+          example: 0
+          description: Longitude do usuário. Atualmente não utilizada no cálculo da resposta.
+
+    Filter:
+      type: object
+      required:
+        - field
+        - value
+      properties:
+        field:
+          type: string
+          description: Nome do filtro que será aplicado.
+          enum:
+            - ESTADO
+            - CIDADE
+            - BAIRRO
+            - ESPECIALIDADE
+          example: ESTADO
+        value:
+          type: string
+          description: Valor utilizado para o filtro.
+          example: ES
+
+    PrestadoresSuccessResponse:
+      type: object
+      properties:
+        Result:
+          type: integer
+          example: 1
+          description: Indica sucesso da consulta.
+        Message:
+          type: string
+          example: Prestadores Encontrados
+          description: Mensagem resumida da resposta.
+        Data:
+          $ref: "#/components/schemas/PrestadoresData"
+        DebugMessage:
+          type: string
+          example: Processamento finalizado com sucesso
+          description: Mensagem técnica ou informativa sobre o processamento.
+
+    PrestadoresNoResultResponse:
+      type: object
+      properties:
+        Result:
+          type: integer
+          example: 0
+          description: Indica ausência de resultados.
+        Message:
+          type: string
+          example: Não encontramos resultados com os filtros informados. Tente remover o bairro ou ajustar a especialidade para ampliar a busca
+        DebugMessage:
+          type: string
+          example: Verifique os parametros pasados
+
+    PrestadoresInvalidFiltersResponse:
+      type: object
+      properties:
+        Result:
+          type: integer
+          example: 0
+        Message:
+          type: string
+          example: "Erro: 'filters' não é um array válido"
+
+    PrestadoresParseErrorResponse:
+      type: object
+      properties:
+        Result:
+          type: integer
+          example: 0
+        Message:
+          type: string
+          example: Erro ao fazer o Parse do JSON
+        DebugMessage:
+          type: string
+          example: Detalhe técnico do erro
+
+    PrestadoresData:
+      type: object
+      properties:
+        guiaMedicoPrestador:
+          type: array
+          description: Lista de prestadores encontrados.
+          items:
+            $ref: "#/components/schemas/GuiaMedicoPrestador"
+        page:
+          $ref: "#/components/schemas/Page"
+
+    Page:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+          description: Página atual retornada.
+        total:
+          type: integer
+          example: 1
+          description: Total de prestadores retornados.
+        count:
+          type: integer
+          example: 1
+          description: Quantidade de prestadores retornados na resposta.
+
+    GuiaMedicoPrestador:
+      type: object
+      properties:
+        prestador:
+          $ref: "#/components/schemas/Prestador"
+        distanciaFormatada:
+          type: string
+          example: ""
+          description: Distância formatada entre usuário e prestador. Atualmente retornada vazia.
+
+    Prestador:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "023388"
+          description: Código interno do prestador.
+        nomePrestador:
+          type: string
+          example: ALCIDES BARATA FILHO
+          description: Nome do prestador.
+        matricula:
+          type: string
+          example: "023388"
+          description: Matrícula ou código do prestador.
+        cdConselho:
+          type: string
+          example: CRM
+          description: Código do conselho profissional.
+        ufConselho:
+          type: string
+          example: ES
+          description: UF do conselho profissional.
+        noConselho:
+          type: string
+          example: "4871"
+          description: Número do conselho profissional.
+        especialidadeRef:
+          type: string
+          example: ""
+          description: Indica referência da especialidade, quando houver.
+        localidadeRef:
+          type: string
+          example: ""
+          description: Indica referência da localidade, quando houver.
+        razaoSocial:
+          type: string
+          example: ALCIDES BARATA FILHO
+          description: Razão social ou nome fantasia do prestador.
+        diretorTecnico:
+          type: string
+          example: ""
+          description: Diretor técnico do prestador, quando houver.
+        cpfCnpj:
+          type: string
+          example: "54090964700"
+          description: CPF ou CNPJ do prestador.
+        observacao:
+          type: string
+          example: ""
+          description: Observação sobre o prestador.
+        flags:
+          $ref: "#/components/schemas/Flags"
+        qualificacoes:
+          type: array
+          description: Lista de qualificações do prestador.
+          items:
+            $ref: "#/components/schemas/Qualificacao"
+        tipoPrestador:
+          $ref: "#/components/schemas/TipoPrestador"
+        perfilAssistencial:
+          $ref: "#/components/schemas/PerfilAssistencial"
+        titulacoesCertificacoes:
+          type: array
+          description: Lista de titulações ou certificações.
+          items:
+            $ref: "#/components/schemas/CodigoNome"
+        titulacoesCertificacoesFormatados:
+          type: string
+          example: ""
+          description: Titulações em formato textual.
+        especialidades:
+          type: array
+          description: Lista de especialidades do prestador.
+          items:
+            $ref: "#/components/schemas/CodigoNome"
+        especialidadesFormatadas:
+          type: string
+          example: CARDIOLOGIA
+          description: Especialidades em texto formatado.
+        areaAtuacao:
+          type: array
+          description: Áreas de atuação. Atualmente pode retornar vazia.
+          items:
+            $ref: "#/components/schemas/CodigoNome"
+        gruposServico:
+          type: array
+          description: Grupos de serviço. Atualmente pode retornar vazio.
+          items:
+            $ref: "#/components/schemas/CodigoNome"
+        gruposServicoFormatados:
+          type: string
+          example: ""
+          description: Grupos de serviço em texto formatado.
+        qualificacaoPrestador:
+          type: array
+          description: Dados complementares de qualificação.
+          items:
+            $ref: "#/components/schemas/QualificacaoPrestador"
+        enderecos:
+          type: array
+          description: Lista de endereços do prestador.
+          items:
+            $ref: "#/components/schemas/Endereco"
+        enderecosFormatados:
+          type: string
+          example: "RUA EXEMPLO, 100 - CENTRO - CEP: 29000000 - VITORIA/ES"
+          description: Endereço completo formatado.
+        favorito:
+          type: string
+          example: ""
+          description: Campo reservado para controle de favorito.
+
+    Flags:
+      type: object
+      properties:
+        iconeUrgenciaEmergencia:
+          type: string
+          example: ""
+          description: Indicador de urgência/emergência.
+        iconeExclusaoSubstituicao:
+          type: string
+          example: ""
+          description: Indicador de exclusão ou substituição.
+        iconeRecursoOperadora:
+          type: string
+          example: ""
+          description: Indicador de recurso próprio da operadora.
+
+    Qualificacao:
+      type: object
+      properties:
+        tipo:
+          type: string
+          example: Profissional com especialização
+          description: Descrição da qualificação do prestador.
+
+    TipoPrestador:
+      type: object
+      properties:
+        codigo:
+          type: string
+          example: "01"
+          description: Código do tipo do prestador.
+        nome:
+          type: string
+          example: MÉDICO
+          description: Nome ou descrição do tipo do prestador.
+
+    PerfilAssistencial:
+      type: object
+      description: Campo reservado. Atualmente pode retornar vazio.
+      properties:
+        codigo:
+          type: string
+          example: ""
+          description: Código do perfil assistencial.
+        nome:
+          type: string
+          example: ""
+          description: Nome do perfil assistencial.
+
+    CodigoNome:
+      type: object
+      properties:
+        codigo:
+          type: string
+          example: ""
+        nome:
+          type: string
+          example: ""
+
+    QualificacaoPrestador:
+      type: object
+      description: Campo reservado. Atualmente pode retornar vazio.
+      properties:
+        idQualificacao:
+          type: string
+          example: ""
+          description: Identificador da qualificação.
+        idInstituicaoAcreditadora:
+          type: string
+          example: ""
+          description: Identificador da instituição acreditadora.
+        nivelAcreditacao:
+          type: string
+          example: ""
+          description: Nível de acreditação.
+        referenciaEndereco:
+          type: string
+          example: ""
+          description: Referência de endereço.
+
+    Endereco:
+      type: object
+      properties:
+        idEndereco:
+          type: string
+          example: "001"
+          description: Código do endereço.
+        descricaoEndereco:
+          type: string
+          example: RUA EXEMPLO
+          description: Tipo e descrição do logradouro.
+        numEndereco:
+          type: string
+          example: "100"
+          description: Número do endereço.
+        complementoEndereco:
+          type: string
+          example: ""
+          description: Complemento do endereço.
+        bairro:
+          type: string
+          example: CENTRO
+          description: Bairro.
+        cep:
+          type: string
+          example: "29000000"
+          description: CEP.
+        fonesWhatsApp:
+          type: array
+          description: Lista de telefones formatados.
+          items:
+            type: object
+        enderecoWeb:
+          type: string
+          example: ""
+          description: Site ou endereço web do prestador, quando houver.
+        latitude:
+          type: string
+          example: ""
+          description: Latitude do endereço. Atualmente pode retornar vazia.
+        longitude:
+          type: string
+          example: ""
+          description: Longitude do endereço. Atualmente pode retornar vazia.
+        cpfCnpj:
+          type: string
+          example: "54090964700"
+          description: CPF ou CNPJ do prestador.
+        cidade:
+          $ref: "#/components/schemas/Cidade"
+        enderecoFormatado:
+          type: string
+          example: "RUA EXEMPLO, 100 - CENTRO - CEP: 29000000 - VITORIA/ES"
+          description: Endereço completo formatado.
+        favorito:
+          type: string
+          example: ""
+          description: Campo reservado para controle de favorito.
+
+    Cidade:
+      type: object
+      properties:
+        idCidade:
+          type: string
+          example: "1"
+          description: Identificador da cidade.
+        sgUF:
+          type: string
+          example: ES
+          description: Sigla da UF.
+        nmEstado:
+          type: string
+          example: ES
+          description: Nome ou sigla do estado.
+        nmCidade:
+          type: string
+          example: VITORIA
+          description: Nome da cidade.
+        latitude:
+          type: number
+          example: 0
+          description: Latitude da cidade.
+        longitude:
+          type: number
+          example: 0
+          description: Longitude da cidade.
+        capital:
+          type: integer
+          example: 0
+          description: Indicador de capital.
