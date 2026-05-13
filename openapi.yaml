@@ -31,7 +31,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListaSimplesResponse"
+                $ref: "#/components/schemas/SimpleListResponse"
               example:
                 Result: 1
                 Message: "Consulta realizada com sucesso"
@@ -44,7 +44,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErroPadraoResponse"
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 Result: 0
                 Message: "UF não localizada"
@@ -74,7 +74,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListaSimplesResponse"
+                $ref: "#/components/schemas/SimpleListResponse"
               example:
                 Result: 1
                 Message: "Consulta realizada com sucesso"
@@ -91,7 +91,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErroPadraoResponse"
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 Result: 0
                 Message: "UF não localizada"
@@ -121,7 +121,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListaSimplesResponse"
+                $ref: "#/components/schemas/SimpleListResponse"
               example:
                 Result: 1
                 Message: "Bairro localizado"
@@ -138,7 +138,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErroPadraoResponse"
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 Result: 0
                 Message: "UF não localizada"
@@ -162,7 +162,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListaSimplesResponse"
+                $ref: "#/components/schemas/SimpleListResponse"
               example:
                 Result: 1
                 Message: "Consulta realizada com sucesso"
@@ -204,8 +204,8 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/ListaSimplesResponse"
-                  - $ref: "#/components/schemas/PlanoNaoEncontradoResponse"
+                  - $ref: "#/components/schemas/SimpleListResponse"
+                  - $ref: "#/components/schemas/ErrorResponse"
               examples:
                 sucessoSemCPF:
                   summary: Planos retornados sem CPF
@@ -319,9 +319,8 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/PrestadoresSuccessResponse"
-                  - $ref: "#/components/schemas/PrestadoresNoResultResponse"
-                  - $ref: "#/components/schemas/PrestadoresInvalidFiltersResponse"
+                  - $ref: "#/components/schemas/PrestadoresResponse"
+                  - $ref: "#/components/schemas/ErrorResponse"
               examples:
                 sucesso:
                   summary: Prestadores encontrados
@@ -420,7 +419,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PrestadoresParseErrorResponse"
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 Result: 0
                 Message: "Erro ao fazer o Parse do JSON"
@@ -428,9 +427,9 @@ paths:
 
 components:
   schemas:
-    ItemSimples:
+    SimpleItem:
       type: object
-      description: Objeto simples utilizado por listas de estados, cidades, bairros, especialidades e planos.
+      description: Item simples usado nas listas de estados, cidades, bairros, especialidades e planos.
       properties:
         id:
           type: string
@@ -441,9 +440,9 @@ components:
           example: "ES"
           description: Nome do item.
 
-    ListaSimplesResponse:
+    SimpleListResponse:
       type: object
-      description: Estrutura padrão de resposta para listas simples.
+      description: Resposta padrão para endpoints que retornam listas simples.
       properties:
         Result:
           type: integer
@@ -457,39 +456,34 @@ components:
           type: array
           description: Lista de itens retornados.
           items:
-            $ref: "#/components/schemas/ItemSimples"
+            $ref: "#/components/schemas/SimpleItem"
         DebugMessage:
           type: string
           example: "Consulta realizada com sucesso"
           description: Mensagem técnica ou informativa do processamento.
 
-    ErroPadraoResponse:
+    ErrorResponse:
       type: object
-      description: Estrutura padrão de erro.
+      description: Resposta padrão para erro, ausência de dados ou validação.
       properties:
         Result:
           type: integer
           example: 0
+          description: Indica erro, ausência de dados ou falha de validação.
         Message:
           type: string
           example: "UF não localizada"
+          description: Mensagem resumida do erro ou validação.
         DebugMessage:
           type: string
           example: "Dados não carregados, verifique a UF"
-
-    PlanoNaoEncontradoResponse:
-      type: object
-      description: Resposta retornada quando nenhum plano é encontrado.
-      properties:
-        Result:
-          type: integer
-          example: 0
-        Message:
-          type: string
-          example: "Nenhum plano encontrado"
+          description: Mensagem técnica ou informativa. Pode não ser retornada em todos os cenários.
         Data:
-          type: object
-          example: {}
+          description: Dados retornados. Em alguns cenários pode vir como objeto vazio.
+          nullable: true
+          oneOf:
+            - type: object
+            - type: array
 
     PrestadoresRequest:
       type: object
@@ -560,8 +554,9 @@ components:
           description: Valor utilizado para o filtro.
           example: "ES"
 
-    PrestadoresSuccessResponse:
+    PrestadoresResponse:
       type: object
+      description: Resposta de sucesso da busca de prestadores.
       properties:
         Result:
           type: integer
@@ -577,43 +572,6 @@ components:
           type: string
           example: "Processamento finalizado com sucesso"
           description: Mensagem técnica ou informativa sobre o processamento.
-
-    PrestadoresNoResultResponse:
-      type: object
-      properties:
-        Result:
-          type: integer
-          example: 0
-          description: Indica ausência de resultados.
-        Message:
-          type: string
-          example: "Não encontramos resultados com os filtros informados. Tente remover o bairro ou ajustar a especialidade para ampliar a busca"
-        DebugMessage:
-          type: string
-          example: "Verifique os parametros pasados"
-
-    PrestadoresInvalidFiltersResponse:
-      type: object
-      properties:
-        Result:
-          type: integer
-          example: 0
-        Message:
-          type: string
-          example: "Erro: 'filters' não é um array válido"
-
-    PrestadoresParseErrorResponse:
-      type: object
-      properties:
-        Result:
-          type: integer
-          example: 0
-        Message:
-          type: string
-          example: "Erro ao fazer o Parse do JSON"
-        DebugMessage:
-          type: string
-          example: "Detalhe técnico do erro"
 
     PrestadoresData:
       type: object
@@ -878,11 +836,7 @@ components:
           type: array
           description: Lista de telefones formatados.
           items:
-            type: object
-            properties:
-              numero:
-                type: string
-                example: "(27) 99999-9999"
+            $ref: "#/components/schemas/Telefone"
         enderecoWeb:
           type: string
           example: ""
@@ -909,6 +863,14 @@ components:
           type: string
           example: ""
           description: Campo reservado para controle de favorito.
+
+    Telefone:
+      type: object
+      properties:
+        numero:
+          type: string
+          example: "(27) 99999-9999"
+          description: Telefone formatado.
 
     Cidade:
       type: object
