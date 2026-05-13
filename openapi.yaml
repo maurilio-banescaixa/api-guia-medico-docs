@@ -8,7 +8,7 @@ info:
 
     Esta documentação descreve os endpoints de listagem de estados, cidades, bairros, especialidades, planos e busca de prestadores.
 
-    A API utiliza autenticação Basic Auth.
+    A API utiliza autenticação Basic Auth, porém esta documentação foi configurada apenas para visualização.
 
 tags:
   - name: Guia Médico
@@ -25,8 +25,6 @@ paths:
 
         Este endpoint retorna uma lista de UFs no formato `id` e `nome`.
       operationId: listarEstados
-      security:
-        - basicAuth: []
       responses:
         "200":
           description: Estados localizados com sucesso.
@@ -62,8 +60,6 @@ paths:
 
         O parâmetro `uf` deve ser enviado na query string.
       operationId: listarCidades
-      security:
-        - basicAuth: []
       parameters:
         - name: uf
           in: query
@@ -111,8 +107,6 @@ paths:
 
         O parâmetro `cidadeId` deve ser enviado na query string.
       operationId: listarBairros
-      security:
-        - basicAuth: []
       parameters:
         - name: cidadeId
           in: query
@@ -162,8 +156,6 @@ paths:
 
         O valor `TODOS` pode ser usado posteriormente no endpoint de prestadores para buscar prestadores de todas as especialidades.
       operationId: listarEspecialidades
-      security:
-        - basicAuth: []
       responses:
         "200":
           description: Especialidades localizadas com sucesso.
@@ -197,8 +189,6 @@ paths:
 
         Quando o header `X-CPF` é enviado, a API tenta localizar o plano vinculado ao usuário.
       operationId: listarPlanos
-      security:
-        - basicAuth: []
       parameters:
         - name: X-CPF
           in: header
@@ -263,8 +253,6 @@ paths:
         - Alguns campos podem retornar vazios por estarem reservados para uso futuro ou compatibilidade com o aplicativo consumidor.
         - O campo `DebugSql` não deve ser retornado em produção.
       operationId: buscarPrestadores
-      security:
-        - basicAuth: []
       requestBody:
         required: true
         description: Corpo da requisição contendo filtros da consulta.
@@ -439,12 +427,6 @@ paths:
                 DebugMessage: "Detalhe técnico do erro"
 
 components:
-  securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
-      description: Autenticação Basic Auth.
-
   schemas:
     ItemSimples:
       type: object
