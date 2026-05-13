@@ -8,9 +8,6 @@ info:
 
     Esta documentação descreve o endpoint de busca de prestadores, incluindo autenticação, body da requisição, filtros aceitos, exemplos de resposta e estrutura dos objetos retornados.
 
-servers:
-  - url: http:
-    description: Ambiente de produção
 
 tags:
   - name: Guia Médico
