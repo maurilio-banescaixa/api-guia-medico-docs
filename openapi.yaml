@@ -15,7 +15,7 @@ tags:
     description: Endpoints relacionados ao Guia Médico
 
 paths:
-  /rest/apibcxGuiaMedico/api/GuiaMedico/Estados:
+  /apibcxGuiaMedico/api/GuiaMedico/Estados:
     get:
       tags:
         - Guia Médico
@@ -50,7 +50,7 @@ paths:
                 Message: "UF não localizada"
                 DebugMessage: "Dados não carregados, verifique a UF"
 
-  /rest/apibcxGuiaMedico/api/GuiaMedico/Cidades:
+  /apibcxGuiaMedico/api/GuiaMedico/Cidades:
     get:
       tags:
         - Guia Médico
@@ -97,7 +97,7 @@ paths:
                 Message: "UF não localizada"
                 DebugMessage: "Dados não carregados, verifique a UF"
 
-  /rest/apibcxGuiaMedico/api/GuiaMedico/Bairros:
+  /apibcxGuiaMedico/api/GuiaMedico/Bairros:
     get:
       tags:
         - Guia Médico
@@ -144,7 +144,7 @@ paths:
                 Message: "UF não localizada"
                 DebugMessage: "Dados não carregados, verifique o codigo do municipio"
 
-  /rest/apibcxGuiaMedico/api/GuiaMedico/Especialidades:
+  /apibcxGuiaMedico/api/GuiaMedico/Especialidades:
     get:
       tags:
         - Guia Médico
@@ -177,7 +177,7 @@ paths:
                     nome: "ANDROLOGIA"
                 DebugMessage: "Especialidades localizadas com sucesso"
 
-  /rest/apibcxGuiaMedico/api/GuiaMedico/Planos:
+  /apibcxGuiaMedico/api/GuiaMedico/Planos:
     get:
       tags:
         - Guia Médico
@@ -232,7 +232,7 @@ paths:
                     Message: "Nenhum plano encontrado"
                     Data: {}
 
-  /rest/apibcxGuiaMedico/api/GuiaMedico/Prestadores:
+  /apibcxGuiaMedico/api/GuiaMedico/Prestadores:
     post:
       tags:
         - Guia Médico
